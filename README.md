@@ -32,3 +32,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+## About the license and releasing your plugin under a different license
+
+The skeleton code in this repository is licensed under the Apache 2.0 license. The license itself specifies the terms
+under which derivative works may be distributed (the license also defines derivative works). The Apache 2.0 license is a
+permissive open source license that has minimal requirements for downstream licensors/licensees to comply with.
+
+This does not prevent your plugin from being licensed under a different license as long as you comply with the relevant
+clauses of the Apache 2.0 license (especially section 4). Typically, you clone this repository and keep the existing
+copyright notices. You are free to add your own license and copyright notice to any modifications.
+
+This is not legal advice. Please contact your lawyers if needed.
