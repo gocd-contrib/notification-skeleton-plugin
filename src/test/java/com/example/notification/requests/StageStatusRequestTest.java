@@ -16,10 +16,23 @@
 
 package com.example.notification.requests;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.util.TimeZone;
+
 public class StageStatusRequestTest {
+    @Before
+    public void setUp() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        TimeZone.setDefault(TimeZone.getDefault());
+    }
 
     @Test
     public void shouldDeserializeFromJSONWithoutLoosingAnyData() throws Exception {
@@ -42,7 +55,7 @@ public class StageStatusRequestTest {
                 "        \"modifications\": [\n" +
                 "          {\n" +
                 "            \"revision\": \"1\",\n" +
-                "            \"modified-time\": \"2016-04-06T12:50:03.317Z\",\n" +
+                "            \"modified-time\": \"2016-04-06T12:50:03.317+0000\",\n" +
                 "            \"data\": {}\n" +
                 "          }\n" +
                 "        ]\n" +
@@ -58,7 +71,7 @@ public class StageStatusRequestTest {
                 "        \"modifications\": [\n" +
                 "          {\n" +
                 "            \"revision\": \"1\",\n" +
-                "            \"modified-time\": \"2016-04-06T12:50:03.317Z\",\n" +
+                "            \"modified-time\": \"2016-04-06T12:50:03.317+0000\",\n" +
                 "            \"data\": {}\n" +
                 "          }\n" +
                 "        ]\n" +
@@ -76,7 +89,7 @@ public class StageStatusRequestTest {
                 "        \"modifications\": [\n" +
                 "          {\n" +
                 "            \"revision\": \"1\",\n" +
-                "            \"modified-time\": \"2016-04-06T12:50:03.317Z\",\n" +
+                "            \"modified-time\": \"2016-04-06T12:50:03.317+0000\",\n" +
                 "            \"data\": {}\n" +
                 "          }\n" +
                 "        ]\n" +
@@ -95,7 +108,7 @@ public class StageStatusRequestTest {
                 "        \"modifications\": [\n" +
                 "          {\n" +
                 "            \"revision\": \"1\",\n" +
-                "            \"modified-time\": \"2016-04-06T12:50:03.317Z\",\n" +
+                "            \"modified-time\": \"2016-04-06T12:50:03.317+0000\",\n" +
                 "            \"data\": {}\n" +
                 "          }\n" +
                 "        ]\n" +
@@ -114,7 +127,7 @@ public class StageStatusRequestTest {
                 "        \"modifications\": [\n" +
                 "          {\n" +
                 "            \"revision\": \"1\",\n" +
-                "            \"modified-time\": \"2016-04-06T12:50:03.317Z\",\n" +
+                "            \"modified-time\": \"2016-04-06T12:50:03.317+0000\",\n" +
                 "            \"data\": {}\n" +
                 "          }\n" +
                 "        ]\n" +
@@ -131,7 +144,7 @@ public class StageStatusRequestTest {
                 "        \"modifications\": [\n" +
                 "          {\n" +
                 "            \"revision\": \"pipeline-name/1/stage-name/1\",\n" +
-                "            \"modified-time\": \"2016-04-06T12:50:03.317Z\",\n" +
+                "            \"modified-time\": \"2016-04-06T12:50:03.317+0000\",\n" +
                 "            \"data\": {}\n" +
                 "          }\n" +
                 "        ]\n" +
@@ -151,7 +164,7 @@ public class StageStatusRequestTest {
                 "        \"modifications\": [\n" +
                 "          {\n" +
                 "            \"revision\": \"1\",\n" +
-                "            \"modified-time\": \"2016-04-06T12:50:03.317Z\",\n" +
+                "            \"modified-time\": \"2016-04-06T12:50:03.317+0000\",\n" +
                 "            \"data\": {}\n" +
                 "          }\n" +
                 "        ]\n" +
@@ -168,7 +181,7 @@ public class StageStatusRequestTest {
                 "        \"modifications\": [\n" +
                 "          {\n" +
                 "            \"revision\": \"1\",\n" +
-                "            \"modified-time\": \"2016-04-06T12:50:03.317Z\",\n" +
+                "            \"modified-time\": \"2016-04-06T12:50:03.317+0000\",\n" +
                 "            \"data\": {}\n" +
                 "          }\n" +
                 "        ]\n" +
@@ -181,13 +194,13 @@ public class StageStatusRequestTest {
                 "      \"approved-by\": \"changes\",\n" +
                 "      \"state\": \"Passed\",\n" +
                 "      \"result\": \"Passed\",\n" +
-                "      \"create-time\": \"2011-07-13T19:43:37.100Z\",\n" +
-                "      \"last-transition-time\": \"2011-07-13T19:43:37.100Z\",\n" +
+                "      \"create-time\": \"2011-07-13T19:43:37.100+0000\",\n" +
+                "      \"last-transition-time\": \"2011-07-13T19:43:37.100+0000\",\n" +
                 "      \"jobs\": [\n" +
                 "        {\n" +
                 "          \"name\": \"job-name\",\n" +
-                "          \"schedule-time\": \"2011-07-13T19:43:37.100Z\",\n" +
-                "          \"complete-time\": \"2011-07-13T19:43:37.100Z\",\n" +
+                "          \"schedule-time\": \"2011-07-13T19:43:37.100+0000\",\n" +
+                "          \"complete-time\": \"2011-07-13T19:43:37.100+0000\",\n" +
                 "          \"state\": \"Completed\",\n" +
                 "          \"result\": \"Passed\",\n" +
                 "          \"agent-uuid\": \"uuid\"\n" +

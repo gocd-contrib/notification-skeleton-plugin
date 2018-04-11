@@ -70,7 +70,7 @@ public class GetPluginConfigurationExecutorTest {
                 "    \"display-order\": \"3\"\n" +
                 "  }\n" +
                 "}";
-        JSONAssert.assertEquals(expectedJSON, response.responseBody(), true);
 
+        JSONAssert.assertEquals(expectedJSON, response.responseBody(), true);
     }
 }

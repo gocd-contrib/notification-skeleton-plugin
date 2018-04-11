@@ -29,6 +29,6 @@ public class NotificationInterestedInExecutorTest {
     public void shouldRenderAListOfNotifications() throws Exception {
         GoPluginApiResponse response = new NotificationInterestedInExecutor().execute();
         assertThat(response.responseCode(), is(200));
-        JSONAssert.assertEquals("{\"notifications\":[\"stage-status\"]}", response.responseBody(), true);
+        JSONAssert.assertEquals("{\"notifications\":[\"stage-status\", \"agent-status\"]}", response.responseBody(), true);
     }
 }
