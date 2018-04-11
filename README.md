@@ -10,6 +10,7 @@ started with writing notification plugins for GoCD.
 * Edit the `plugin-settings.template.html` file which contains the view for the plugin settings page of your plugin.
 * Edit the `PluginSettings.java` file which contains the model for your settings.
 * Implement the `StageStatusRequestExecutor.java` class to get a basic notification plugin working.
+* Implement the `AgentStatusRequestExecutor.java` class to get a basic notification plugin working.
 
 ## Building the code base
 
