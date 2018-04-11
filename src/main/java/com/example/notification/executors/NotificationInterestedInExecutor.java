@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.example.notification.executors;
 
-import com.example.notification.Request;
 import com.example.notification.RequestExecutor;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
