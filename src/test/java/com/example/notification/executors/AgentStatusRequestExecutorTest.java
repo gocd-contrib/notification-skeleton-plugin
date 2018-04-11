@@ -23,11 +23,11 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class StageStatusRequestExecutorTest {
+public class AgentStatusRequestExecutorTest {
 
     @Test
     public void shouldRenderASuccessResponseIfNotificationWasSent() throws Exception {
-        GoPluginApiResponse response = new StageStatusRequestExecutor(null, null) {
+        GoPluginApiResponse response = new AgentStatusRequestExecutor(null, null) {
             @Override
             protected void sendNotification() {
                 // do nothing!
@@ -40,7 +40,7 @@ public class StageStatusRequestExecutorTest {
 
     @Test
     public void shouldRenderAnErrorResponseIfNotificationWasNotSent() throws Exception {
-        GoPluginApiResponse response = new StageStatusRequestExecutor(null, null) {
+        GoPluginApiResponse response = new AgentStatusRequestExecutor(null, null) {
             @Override
             protected void sendNotification() {
                 throw new RuntimeException("Boom!");

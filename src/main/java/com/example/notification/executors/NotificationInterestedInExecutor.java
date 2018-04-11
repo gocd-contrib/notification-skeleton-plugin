@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
+import static com.example.notification.Request.REQUEST_AGENT_STATUS;
 import static com.example.notification.Request.REQUEST_STAGE_STATUS;
 
 public class NotificationInterestedInExecutor implements RequestExecutor {
@@ -33,6 +34,7 @@ public class NotificationInterestedInExecutor implements RequestExecutor {
         JsonObject jsonObject = new JsonObject();
         JsonArray notifications = new JsonArray();
         notifications.add(REQUEST_STAGE_STATUS.requestName());
+        notifications.add(REQUEST_AGENT_STATUS.requestName());
         jsonObject.add("notifications", notifications);
 
         DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(200);

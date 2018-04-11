@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ public enum Request {
     // elastic agent related requests that the server makes to the plugin
     REQUEST_NOTIFICATIONS_INTERESTED_IN("notifications-interested-in"),
     REQUEST_STAGE_STATUS("stage-status"),
+    REQUEST_AGENT_STATUS("agent-status"),
 
     // settings related requests that the server makes to the plugin
     PLUGIN_SETTINGS_GET_CONFIGURATION(Constants.GO_PLUGIN_SETTINGS_PREFIX + ".get-configuration"),

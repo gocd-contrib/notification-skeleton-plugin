@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,6 @@ public class NotificationInterestedInExecutorTest {
     public void shouldRenderAListOfNotifications() throws Exception {
         GoPluginApiResponse response = new NotificationInterestedInExecutor().execute();
         assertThat(response.responseCode(), is(200));
-        JSONAssert.assertEquals("{\"notifications\":[\"stage-status\"]}", response.responseBody(), true);
+        JSONAssert.assertEquals("{\"notifications\":[\"stage-status\", \"agent-status\"]}", response.responseBody(), true);
     }
 }

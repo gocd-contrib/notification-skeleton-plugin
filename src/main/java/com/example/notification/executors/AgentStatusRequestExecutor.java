@@ -18,23 +18,18 @@ package com.example.notification.executors;
 
 import com.example.notification.PluginRequest;
 import com.example.notification.RequestExecutor;
-import com.example.notification.requests.StageStatusRequest;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.example.notification.requests.AgentStatusRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class StageStatusRequestExecutor implements RequestExecutor {
-    private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-
-    private final StageStatusRequest request;
+public class AgentStatusRequestExecutor implements RequestExecutor {
+    private final AgentStatusRequest request;
     private final PluginRequest pluginRequest;
 
-    public StageStatusRequestExecutor(StageStatusRequest request, PluginRequest pluginRequest) {
+    public AgentStatusRequestExecutor(AgentStatusRequest request, PluginRequest pluginRequest) {
         this.request = request;
         this.pluginRequest = pluginRequest;
     }
@@ -49,11 +44,11 @@ public class StageStatusRequestExecutor implements RequestExecutor {
             responseJson.put("status", "failure");
             responseJson.put("messages", Arrays.asList(e.getMessage()));
         }
-        return new DefaultGoPluginApiResponse(200, GSON.toJson(responseJson));
+        return new DefaultGoPluginApiResponse(200, AgentStatusRequest.GSON.toJson(responseJson));
     }
 
     protected void sendNotification() throws Exception {
-        // TODO: Implement this. The request.pipeline object has all the details about the pipeline, materials, stages and jobs
+        // TODO: Implement this. The request.agent object has all the details about the state changed agent
         // If you need access to settings like API keys, URLs, then call PluginRequest#getPluginSettings
 //        PluginSettings pluginSettings = pluginRequest.getPluginSettings();
         throw new UnsupportedOperationException();

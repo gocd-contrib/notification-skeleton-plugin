@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,22 @@ package com.example.notification.requests;
 import com.example.notification.PluginRequest;
 import com.example.notification.RequestExecutor;
 import com.example.notification.executors.StageStatusRequestExecutor;
-import com.google.gson.*;
+import com.example.notification.utils.DefaultDateTypeAdapter;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.bind.util.ISO8601Utils;
 
-import java.lang.reflect.Type;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class StageStatusRequest {
-    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    static final Gson GSON = new GsonBuilder()
+    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+    public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(Date.class, new DefaultDateTypeAdapter(DATE_PATTERN))
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .create();
 
     public Pipeline pipeline;
@@ -134,78 +131,5 @@ public class StageStatusRequest {
 
         @SerializedName("data")
         public Map data;
-    }
-
-    // Copy of the adapter from gson, to deal with dates rendered as a blank string, instead of a null
-    static final class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
-
-        private final DateFormat enUsFormat;
-        private final DateFormat localFormat;
-
-        DefaultDateTypeAdapter(String datePattern) {
-            this(new SimpleDateFormat(datePattern, Locale.US), new SimpleDateFormat(datePattern));
-        }
-
-        DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat) {
-            this.enUsFormat = enUsFormat;
-            this.localFormat = localFormat;
-        }
-
-        // These methods need to be synchronized since JDK DateFormat classes are not thread-safe
-        // See issue 162
-        @Override
-        public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
-            synchronized (localFormat) {
-                String dateFormatAsString = enUsFormat.format(src);
-                return new JsonPrimitive(dateFormatAsString);
-            }
-        }
-
-        @Override
-        public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
-            if (!(json instanceof JsonPrimitive)) {
-                throw new JsonParseException("The date should be a string value");
-            }
-            Date date = deserializeToDate(json);
-            if (typeOfT == Date.class) {
-                return date;
-            } else if (typeOfT == Timestamp.class) {
-                return new Timestamp(date.getTime());
-            } else if (typeOfT == java.sql.Date.class) {
-                return new java.sql.Date(date.getTime());
-            } else {
-                throw new IllegalArgumentException(getClass() + " cannot deserialize to " + typeOfT);
-            }
-        }
-
-        private Date deserializeToDate(JsonElement json) {
-            synchronized (localFormat) {
-                if (json.getAsString().isEmpty()) {
-                    return null;
-                }
-                try {
-                    return localFormat.parse(json.getAsString());
-                } catch (ParseException ignored) {
-                }
-                try {
-                    return enUsFormat.parse(json.getAsString());
-                } catch (ParseException ignored) {
-                }
-                try {
-                    return ISO8601Utils.parse(json.getAsString(), new ParsePosition(0));
-                } catch (ParseException e) {
-                    throw new JsonSyntaxException(json.getAsString(), e);
-                }
-            }
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(DefaultDateTypeAdapter.class.getSimpleName());
-            sb.append('(').append(localFormat.getClass().getSimpleName()).append(')');
-            return sb.toString();
-        }
     }
 }

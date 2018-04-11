@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.example.notification;
 import com.example.notification.executors.GetPluginConfigurationExecutor;
 import com.example.notification.executors.GetViewRequestExecutor;
 import com.example.notification.executors.NotificationInterestedInExecutor;
+import com.example.notification.requests.AgentStatusRequest;
 import com.example.notification.requests.StageStatusRequest;
 import com.example.notification.requests.ValidatePluginSettings;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
@@ -56,6 +57,8 @@ public class ExamplePlugin implements GoPlugin {
                     return new NotificationInterestedInExecutor().execute();
                 case REQUEST_STAGE_STATUS:
                     return StageStatusRequest.fromJSON(request.requestBody()).executor(pluginRequest).execute();
+                case REQUEST_AGENT_STATUS:
+                    return AgentStatusRequest.fromJSON(request.requestBody()).executor(pluginRequest).execute();
                 case PLUGIN_SETTINGS_GET_CONFIGURATION:
                     return new GetPluginConfigurationExecutor().execute();
                 case PLUGIN_SETTINGS_VALIDATE_CONFIGURATION:
