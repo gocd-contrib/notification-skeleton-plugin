@@ -47,6 +47,10 @@ public class ValidateConfigurationExecutorTest {
                 "  {\n" +
                 "    \"message\": \"API Key must not be blank.\",\n" +
                 "    \"key\": \"api_key\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"message\": \"Web hook URL must not be blank.\",\n" +
+                "    \"key\": \"web_hook_url\"\n" +
                 "  }\n" +
                 "]", response.responseBody(), true);
     }
@@ -58,6 +62,7 @@ public class ValidateConfigurationExecutorTest {
         settings.put("api_user", "bob");
         settings.put("api_key", "p@ssw0rd");
         settings.put("go_server_url", "https://ci.example.com");
+        settings.put("web_hook_url", "https://api.example.com");
         GoPluginApiResponse response = new ValidateConfigurationExecutor(settings).execute();
 
         assertThat(response.responseCode(), is(200));

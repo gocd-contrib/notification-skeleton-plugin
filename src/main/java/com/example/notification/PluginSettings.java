@@ -44,7 +44,7 @@ public class PluginSettings {
     private String apiUrl;
 
     @Expose
-    @SerializedName("webhook_url")
+    @SerializedName("web_hook_url")
     private String webhookUrl;
 
     public static PluginSettings fromJSON(String json) {

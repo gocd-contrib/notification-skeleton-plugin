@@ -68,6 +68,12 @@ public class GetPluginConfigurationExecutorTest {
                 "    \"required\": true,\n" +
                 "    \"secure\": false,\n" +
                 "    \"display-order\": \"3\"\n" +
+                "  },\n" +
+                "  \"web_hook_url\": {\n" +
+                "    \"display-name\": \"Web hook URL\",\n" +
+                "    \"required\": true,\n" +
+                "    \"secure\": false,\n" +
+                "    \"display-order\": \"4\"\n" +
                 "  }\n" +
                 "}";
 
