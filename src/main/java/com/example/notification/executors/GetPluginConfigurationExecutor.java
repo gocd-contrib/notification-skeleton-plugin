@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
+import java.nio.file.WatchEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ public class GetPluginConfigurationExecutor implements RequestExecutor {
     public static final Field API_SERVER_URL = new NonBlankField("api_url", "API URL", null, true, false, "1");
     public static final Field API_USER = new NonBlankField("api_user", "API User", null, true, false, "2");
     public static final Field API_KEY = new NonBlankField("api_key", "API Key", null, true, false, "3");
+    public static final Field CHAT_WEBHOOK_URL = new NonBlankField("web_hook_url", "Web hook URL", null, true, false, "4");
 
     public static final Map<String, Field> FIELDS = new LinkedHashMap<>();
 
@@ -45,6 +47,7 @@ public class GetPluginConfigurationExecutor implements RequestExecutor {
         FIELDS.put(API_SERVER_URL.key(), API_SERVER_URL);
         FIELDS.put(API_USER.key(), API_USER);
         FIELDS.put(API_KEY.key(), API_KEY);
+        FIELDS.put(CHAT_WEBHOOK_URL.key(), CHAT_WEBHOOK_URL);
     }
 
     public GoPluginApiResponse execute() {

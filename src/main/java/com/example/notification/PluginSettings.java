@@ -43,6 +43,10 @@ public class PluginSettings {
     @SerializedName("api_url")
     private String apiUrl;
 
+    @Expose
+    @SerializedName("webhook_url")
+    private String webhookUrl;
+
     public static PluginSettings fromJSON(String json) {
         return GSON.fromJson(json, PluginSettings.class);
     }
@@ -61,5 +65,9 @@ public class PluginSettings {
 
     public String getGoServerUrl() {
         return goServerUrl;
+    }
+
+    public String getWebhookUrl() {
+        return webhookUrl;
     }
 }

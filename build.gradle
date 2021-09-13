@@ -16,18 +16,18 @@
 
 apply plugin: 'java'
 
-group = 'com.example.notification.template'
-version = '0.1-SNAPSHOT'
+group = 'com.thoughtworks.gocd.plugins'
+version = '0.0.1'
 
 // these values that go into plugin.xml
 project.ext.pluginDesc = [
-        id         : 'com.example.notification.systemout',
+        id         : 'com.thoughtworks.gocd.plugins.chat-notifications',
         version    : project.version,
         goCdVersion: '16.2.1',
-        name       : 'Example Notification Plugin that prints to `System.out`',
-        description: 'Some longer description of your plugin goes here',
-        vendorName : 'Acme Corp',
-        vendorUrl  : 'https://github.com/user/repository'
+        name       : 'Google chat notification plugin',
+        description: 'Google chat notification plugin',
+        vendorName : 'Thoughtworks',
+        vendorUrl  : ''
 ]
 
 // Force 1.7 compatibility to ensure that it works with older JVMs
