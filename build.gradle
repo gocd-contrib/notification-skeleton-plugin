@@ -16,12 +16,12 @@
 
 apply plugin: 'java'
 
-group = 'com.thoughtworks.gocd.plugins'
+group = 'com.tw.notification.plugins'
 version = '0.0.1'
 
 // these values that go into plugin.xml
 project.ext.pluginDesc = [
-        id         : 'com.thoughtworks.gocd.plugins.chat-notifications',
+        id         : 'com.tw.notification.plugins.chat-notifications',
         version    : project.version,
         goCdVersion: '16.2.1',
         name       : 'Google chat notification plugin',
