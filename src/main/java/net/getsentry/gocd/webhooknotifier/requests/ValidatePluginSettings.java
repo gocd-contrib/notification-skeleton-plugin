@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.example.notification.requests;
+package net.getsentry.gocd.webhooknotifier.requests;
 
-import com.example.notification.RequestExecutor;
-import com.example.notification.executors.ValidateConfigurationExecutor;
+import net.getsentry.gocd.webhooknotifier.RequestExecutor;
+import net.getsentry.gocd.webhooknotifier.executors.ValidateConfigurationExecutor;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

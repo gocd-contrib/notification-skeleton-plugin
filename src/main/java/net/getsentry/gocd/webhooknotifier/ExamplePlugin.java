@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.example.notification;
+package net.getsentry.gocd.webhooknotifier;
 
-import com.example.notification.executors.GetPluginConfigurationExecutor;
-import com.example.notification.executors.GetViewRequestExecutor;
-import com.example.notification.executors.NotificationInterestedInExecutor;
-import com.example.notification.requests.AgentStatusRequest;
-import com.example.notification.requests.StageStatusRequest;
-import com.example.notification.requests.ValidatePluginSettings;
+import net.getsentry.gocd.webhooknotifier.executors.GetPluginConfigurationExecutor;
+import net.getsentry.gocd.webhooknotifier.executors.GetViewRequestExecutor;
+import net.getsentry.gocd.webhooknotifier.executors.NotificationInterestedInExecutor;
+import net.getsentry.gocd.webhooknotifier.requests.AgentStatusRequest;
+import net.getsentry.gocd.webhooknotifier.requests.StageStatusRequest;
+import net.getsentry.gocd.webhooknotifier.requests.ValidatePluginSettings;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
@@ -31,7 +31,7 @@ import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-import static com.example.notification.Constants.PLUGIN_IDENTIFIER;
+import static net.getsentry.gocd.webhooknotifier.Constants.PLUGIN_IDENTIFIER;
 
 @Extension
 public class ExamplePlugin implements GoPlugin {

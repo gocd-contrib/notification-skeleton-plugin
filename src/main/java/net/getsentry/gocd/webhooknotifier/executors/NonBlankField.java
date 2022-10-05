@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.notification.executors;
+package net.getsentry.gocd.webhooknotifier.executors;
 
 import org.apache.commons.lang3.StringUtils;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.notification;
+package net.getsentry.gocd.webhooknotifier;
 
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.example.notification;
+package net.getsentry.gocd.webhooknotifier;
 
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 
-import static com.example.notification.Constants.PLUGIN_IDENTIFIER;
-import static com.example.notification.Constants.PLUGIN_SETTINGS_PROCESSOR_API_VERSION;
+import static net.getsentry.gocd.webhooknotifier.Constants.PLUGIN_IDENTIFIER;
+import static net.getsentry.gocd.webhooknotifier.Constants.PLUGIN_SETTINGS_PROCESSOR_API_VERSION;
 
 
 /**

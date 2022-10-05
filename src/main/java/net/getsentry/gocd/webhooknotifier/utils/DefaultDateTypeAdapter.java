@@ -1,4 +1,4 @@
-package com.example.notification.utils;
+package net.getsentry.gocd.webhooknotifier.utils;
 
 import com.google.gson.*;
 import com.google.gson.internal.bind.util.ISO8601Utils;

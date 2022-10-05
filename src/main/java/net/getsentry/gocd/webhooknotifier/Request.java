@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.notification;
+package net.getsentry.gocd.webhooknotifier;
 
 /**
  * Enumerable that represents one of the messages that the server sends to the plugin

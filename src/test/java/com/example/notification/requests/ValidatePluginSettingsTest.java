@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.notification.requests;
+package net.getsentry.gocd.webhooknotifier.requests;
 
 import org.junit.Test;
 

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.example.notification.executors;
+package net.getsentry.gocd.webhooknotifier.executors;
 
-import com.example.notification.RequestExecutor;
+import net.getsentry.gocd.webhooknotifier.RequestExecutor;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-import static com.example.notification.Request.REQUEST_AGENT_STATUS;
-import static com.example.notification.Request.REQUEST_STAGE_STATUS;
+import static net.getsentry.gocd.webhooknotifier.Request.REQUEST_AGENT_STATUS;
+import static net.getsentry.gocd.webhooknotifier.Request.REQUEST_STAGE_STATUS;
 
 public class NotificationInterestedInExecutor implements RequestExecutor {
     private static final Gson GSON = new Gson();

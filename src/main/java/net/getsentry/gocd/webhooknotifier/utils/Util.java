@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.example.notification.utils;
+package net.getsentry.gocd.webhooknotifier.utils;
 
-import com.example.notification.executors.GetViewRequestExecutor;
+import net.getsentry.gocd.webhooknotifier.executors.GetViewRequestExecutor;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 

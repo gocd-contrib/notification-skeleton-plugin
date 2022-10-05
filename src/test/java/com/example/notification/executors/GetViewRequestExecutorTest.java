@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.example.notification.executors;
+package net.getsentry.gocd.webhooknotifier.executors;
 
-import com.example.notification.utils.Util;
+import net.getsentry.gocd.webhooknotifier.utils.Util;
 import com.google.gson.Gson;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import org.junit.Test;
