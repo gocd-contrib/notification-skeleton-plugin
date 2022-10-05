@@ -16,18 +16,18 @@
 
 apply plugin: 'java'
 
-group = 'com.example.notification.template'
-version = '0.1-SNAPSHOT'
+group = 'net.getsentry.gocd'
+version = '0.1'
 
 // these values that go into plugin.xml
 project.ext.pluginDesc = [
-        id         : 'com.example.notification.systemout',
+        id         : 'net.getsentry.gocd.webhook-notifier',
         version    : project.version,
         goCdVersion: '16.2.1',
-        name       : 'Example Notification Plugin that prints to `System.out`',
-        description: 'Some longer description of your plugin goes here',
-        vendorName : 'Acme Corp',
-        vendorUrl  : 'https://github.com/user/repository'
+        name       : 'WebHook Notifier',
+        description: 'Ping a webhook on GoCD changes',
+        vendorName : 'sentry.io',
+        vendorUrl  : 'https://github.com/getsentry/webhook-notification-plugin'
 ]
 
 // Force 1.7 compatibility to ensure that it works with older JVMs
@@ -43,14 +43,14 @@ repositories {
 
 dependencies {
     compileOnly group: 'cd.go.plugin', name: 'go-plugin-api', version: project.pluginDesc.goCdVersion
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
-    compile group: 'com.google.guava', name: 'guava', version: '23.0'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+    implementation group: 'com.google.guava', name: 'guava', version: '23.0'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '2.1'
-    testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
-    testCompile group: 'cd.go.plugin', name: 'go-plugin-api', version: project.pluginDesc.goCdVersion
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.1'
+    testImplementation group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
+    testImplementation group: 'cd.go.plugin', name: 'go-plugin-api', version: project.pluginDesc.goCdVersion
 }
 
 processResources {
@@ -66,7 +66,7 @@ processResources {
 }
 
 jar {
-    from(configurations.compile) {
+    from(configurations.runtimeClasspath) {
         into "lib/"
     }
 }
