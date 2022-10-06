@@ -17,11 +17,11 @@ jobs:
       - uses: actions/checkout@7884fcad6b5d53d10323aee724dc68d8b9096a2e  # v2
       - uses: gradle/gradle-build-action@v2
       - run: gradle clean test
-      - run: gradle clean assemble -Dorg.gradle.project.version="${github.event.inputs.version}"
+      - run: gradle clean assemble -Dorg.gradle.project.version="${{ github.event.inputs.version }}"
       - name: "Create release"
         uses: "actions/github-script@v5"
         env:
-          VERSION: ${github.event.inputs.version}
+          VERSION: ${{ github.event.inputs.version }}
         with:
           script: |
             const fs = require('fs');
