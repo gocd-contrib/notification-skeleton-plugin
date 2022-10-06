@@ -17,7 +17,6 @@
 apply plugin: 'java'
 
 group = 'net.getsentry.gocd'
-version = '0.1'
 
 // these values that go into plugin.xml
 project.ext.pluginDesc = [
