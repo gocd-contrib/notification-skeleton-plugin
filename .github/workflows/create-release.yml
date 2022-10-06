@@ -18,28 +18,27 @@ jobs:
       - run: gradle clean assemble -Dorg.gradle.project.version="${GITHUB_REF#refs/tags/}"
       - name: "Determine tag"
         run: "echo \"RELEASE_TAG=${GITHUB_REF#refs/tags/}\" >> $GITHUB_ENV"
-      - name: "Determine filename"
-        run: "echo \"PLUGIN_JAR_NAME=getsentry-webhook-notifier-${GITHUB_REF#refs/tags/}.jar\" >> $GITHUB_ENV"
       - name: "Create release"
         uses: "actions/github-script@v5"
         with:
           script: |
+            const fs = require('fs');
             try {
-              const release = await github.rest.repos.createRelease({
-                draft: false,
-                generate_release_notes: true,
-                name: process.env.RELEASE_TAG,
+              const tag = context.ref.replace("refs/tags/", "");
+
+              // Get release for this tag
+              const release = await github.repos.getReleaseByTag({
                 owner: context.repo.owner,
-                prerelease: false,
                 repo: context.repo.repo,
-                tag_name: process.env.RELEASE_TAG,
+                tag
               });
+
               await github.rest.repos.uploadReleaseAsset({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 release_id: release.data.id,
                 name: $PLUGIN_JAR_NAME,
-                data: await fs.readFileSync(`build/libs/${process.env.PLUGIN_JAR_NAME}`)
+                data: await fs.readFileSync(`build/libs/getsentry-webhook-notifier-${tag}.jar`),
               });
             } catch (error) {
               core.setFailed(error.message);
