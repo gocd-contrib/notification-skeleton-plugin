@@ -18,6 +18,7 @@ package net.getsentry.gocd.webhooknotifier.executors;
 
 import net.getsentry.gocd.webhooknotifier.PluginRequest;
 import net.getsentry.gocd.webhooknotifier.RequestExecutor;
+import net.getsentry.gocd.webhooknotifier.utils.Http;
 import net.getsentry.gocd.webhooknotifier.requests.StageStatusRequest;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -53,9 +54,6 @@ public class StageStatusRequestExecutor implements RequestExecutor {
     }
 
     protected void sendNotification() throws Exception {
-        // TODO: Implement this. The request.pipeline object has all the details about the pipeline, materials, stages and jobs
-        // If you need access to settings like API keys, URLs, then call PluginRequest#getPluginSettings
-//        PluginSettings pluginSettings = pluginRequest.getPluginSettings();
-        throw new UnsupportedOperationException();
+        Http.PingWebhooks(this.pluginRequest, "stage", this.request);
     }
 }

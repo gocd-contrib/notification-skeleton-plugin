@@ -21,6 +21,7 @@ import net.getsentry.gocd.webhooknotifier.RequestExecutor;
 import net.getsentry.gocd.webhooknotifier.requests.AgentStatusRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import net.getsentry.gocd.webhooknotifier.utils.Http;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,9 +49,6 @@ public class AgentStatusRequestExecutor implements RequestExecutor {
     }
 
     protected void sendNotification() throws Exception {
-        // TODO: Implement this. The request.agent object has all the details about the state changed agent
-        // If you need access to settings like API keys, URLs, then call PluginRequest#getPluginSettings
-//        PluginSettings pluginSettings = pluginRequest.getPluginSettings();
-        throw new UnsupportedOperationException();
+        Http.PingWebhooks(this.pluginRequest, "agent", this.request);
     }
 }

@@ -26,6 +26,10 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import static net.getsentry.gocd.webhooknotifier.Request.REQUEST_AGENT_STATUS;
 import static net.getsentry.gocd.webhooknotifier.Request.REQUEST_STAGE_STATUS;
 
+/**
+ * This executor tells GoCD that we are interested in stage and agent
+ * status updates.
+ */
 public class NotificationInterestedInExecutor implements RequestExecutor {
     private static final Gson GSON = new Gson();
 

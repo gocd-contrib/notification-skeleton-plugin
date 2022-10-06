@@ -30,7 +30,7 @@ public class PluginSettingsTest {
 
         assertThat(
             "WebHook URLs",
-            pluginSettings.getWebhookURLs(),
+            pluginSettings.getTrimmedWebhookURLs(),
             arrayContainingInAnyOrder(
                 "https://api.example.com",
                 "https://api-2.example.com"

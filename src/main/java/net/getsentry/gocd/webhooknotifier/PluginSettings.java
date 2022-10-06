@@ -37,7 +37,7 @@ public class PluginSettings {
         return GSON.fromJson(json, PluginSettings.class);
     }
 
-    public String[] getWebhookURLs() {
+    public String[] getTrimmedWebhookURLs() {
         ArrayList<String> trimmed = new ArrayList<String>();
         String[] lines = webhookURLsValue.split("\n");
         for (int i = 0; i < lines.length; i++) {
