@@ -1,9 +1,11 @@
 name: "Release"
 
-on: # yamllint disable-line rule:truthy
-  push:
-    tags:
-      - "**"
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release (v1.0.0)
+        required: true
 
 jobs:
   release:
@@ -15,30 +17,31 @@ jobs:
       - uses: actions/checkout@7884fcad6b5d53d10323aee724dc68d8b9096a2e  # v2
       - uses: gradle/gradle-build-action@v2
       - run: gradle clean test
-      - run: gradle clean assemble -Dorg.gradle.project.version="${GITHUB_REF#refs/tags/}"
-      - name: "Determine tag"
-        run: "echo \"RELEASE_TAG=${GITHUB_REF#refs/tags/}\" >> $GITHUB_ENV"
+      - run: gradle clean assemble -Dorg.gradle.project.version="${github.event.inputs.version}"
       - name: "Create release"
         uses: "actions/github-script@v5"
+        env:
+          VERSION: ${github.event.inputs.version}
         with:
           script: |
             const fs = require('fs');
             try {
-              const tag = context.ref.replace("refs/tags/", "");
-
-              // Get release for this tag
-              const release = await github.repos.getReleaseByTag({
+              const filename = `getsentry-webhook-notifier-${process.env.VERSION}.jar`
+              const release = await github.rest.repos.createRelease({
+                draft: false,
+                generate_release_notes: true,
+                name: process.env.VERSION,
                 owner: context.repo.owner,
+                prerelease: false,
                 repo: context.repo.repo,
-                tag
+                tag_name: process.env.VERSION,
               });
-
               await github.rest.repos.uploadReleaseAsset({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 release_id: release.data.id,
-                name: $PLUGIN_JAR_NAME,
-                data: await fs.readFileSync(`build/libs/getsentry-webhook-notifier-${tag}.jar`),
+                name: filename,
+                data: await fs.readFileSync(`build/libs/${filename}`),
               });
             } catch (error) {
               core.setFailed(error.message);
