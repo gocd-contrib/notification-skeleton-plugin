@@ -12,5 +12,10 @@ To build the jar, run `gradle clean assemble`
 
 ## Release
 
-Create a tag on GitHub and it'll kick of a GitHub action that will generate
-a build of the jar with the same version
+Create a tag and it'll kick off a GitHub action to generate a release
+with a jar file for the plugin.
+
+```shell
+git tag v0.0.1
+git push origin --tags
+```
