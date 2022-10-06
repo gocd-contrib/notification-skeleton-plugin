@@ -27,11 +27,11 @@ import java.util.Map;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-public class GetViewRequestExecutorTest {
+public class GetSettingsViewRequestExecutorTest {
 
     @Test
     public void shouldRenderTheTemplateInJSON() throws Exception {
-        GoPluginApiResponse response = new GetViewRequestExecutor().execute();
+        GoPluginApiResponse response = new GetSettingsViewRequestExecutor().execute();
         assertThat(response.responseCode(), is(200));
         Map<String, String> hashSet = new Gson().fromJson(response.responseBody(), HashMap.class);
         assertThat(hashSet, hasEntry("template", Util.readResource("/plugin-settings.template.html")));

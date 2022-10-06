@@ -16,7 +16,7 @@
 
 package net.getsentry.gocd.webhooknotifier.utils;
 
-import net.getsentry.gocd.webhooknotifier.executors.GetViewRequestExecutor;
+import net.getsentry.gocd.webhooknotifier.executors.GetSettingsViewRequestExecutor;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 
@@ -27,7 +27,7 @@ import java.util.Properties;
 
 public class Util {
     public static String readResource(String resourceFile) {
-        try (InputStreamReader reader = new InputStreamReader(GetViewRequestExecutor.class.getResourceAsStream(resourceFile), Charsets.UTF_8)) {
+        try (InputStreamReader reader = new InputStreamReader(GetSettingsViewRequestExecutor.class.getResourceAsStream(resourceFile), Charsets.UTF_8)) {
             return CharStreams.toString(reader);
         } catch (IOException e) {
             throw new RuntimeException("Could not find resource " + resourceFile, e);

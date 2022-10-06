@@ -16,6 +16,8 @@
 
 package net.getsentry.gocd.webhooknotifier;
 
+import java.util.ArrayList;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -28,38 +30,22 @@ public class PluginSettings {
             create();
 
     @Expose
-    @SerializedName("go_server_url")
-    private String goServerUrl;
-
-    @Expose
-    @SerializedName("api_user")
-    private String apiUser;
-
-    @Expose
-    @SerializedName("api_key")
-    private String apiKey;
-
-    @Expose
-    @SerializedName("api_url")
-    private String apiUrl;
+    @SerializedName("webhook_urls")
+    private String webhookURLsValue;
 
     public static PluginSettings fromJSON(String json) {
         return GSON.fromJson(json, PluginSettings.class);
     }
 
-    public String getApiUser() {
-        return apiUser;
-    }
-
-    public String getApiKey() {
-        return apiKey;
-    }
-
-    public String getApiUrl() {
-        return apiUrl;
-    }
-
-    public String getGoServerUrl() {
-        return goServerUrl;
+    public String[] getWebhookURLs() {
+        ArrayList<String> trimmed = new ArrayList<String>();
+        String[] lines = webhookURLsValue.split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            String l = lines[i].trim();
+            if (l.length() > 0) {
+                trimmed.add(l);
+            }
+        }
+        return trimmed.toArray(new String[0]);
     }
 }

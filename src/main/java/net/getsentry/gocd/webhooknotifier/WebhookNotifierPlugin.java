@@ -17,7 +17,7 @@
 package net.getsentry.gocd.webhooknotifier;
 
 import net.getsentry.gocd.webhooknotifier.executors.GetPluginConfigurationExecutor;
-import net.getsentry.gocd.webhooknotifier.executors.GetViewRequestExecutor;
+import net.getsentry.gocd.webhooknotifier.executors.GetSettingsViewRequestExecutor;
 import net.getsentry.gocd.webhooknotifier.executors.NotificationInterestedInExecutor;
 import net.getsentry.gocd.webhooknotifier.requests.AgentStatusRequest;
 import net.getsentry.gocd.webhooknotifier.requests.StageStatusRequest;
@@ -34,9 +34,9 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import static net.getsentry.gocd.webhooknotifier.Constants.PLUGIN_IDENTIFIER;
 
 @Extension
-public class ExamplePlugin implements GoPlugin {
+public class WebhookNotifierPlugin implements GoPlugin {
 
-    public static final Logger LOG = Logger.getLoggerFor(ExamplePlugin.class);
+    public static final Logger LOG = Logger.getLoggerFor(WebhookNotifierPlugin.class);
 
     private GoApplicationAccessor accessor;
     private PluginRequest pluginRequest;
@@ -52,21 +52,23 @@ public class ExamplePlugin implements GoPlugin {
         try {
             switch (Request.fromString(request.requestName())) {
                 case PLUGIN_SETTINGS_GET_VIEW:
-                    return new GetViewRequestExecutor().execute();
+                    return new GetSettingsViewRequestExecutor().execute();
                 case REQUEST_NOTIFICATIONS_INTERESTED_IN:
                     return new NotificationInterestedInExecutor().execute();
-                case REQUEST_STAGE_STATUS:
-                    return StageStatusRequest.fromJSON(request.requestBody()).executor(pluginRequest).execute();
-                case REQUEST_AGENT_STATUS:
-                    return AgentStatusRequest.fromJSON(request.requestBody()).executor(pluginRequest).execute();
                 case PLUGIN_SETTINGS_GET_CONFIGURATION:
                     return new GetPluginConfigurationExecutor().execute();
                 case PLUGIN_SETTINGS_VALIDATE_CONFIGURATION:
                     return ValidatePluginSettings.fromJSON(request.requestBody()).executor().execute();
+                // The following cases that call the webhook
+                case REQUEST_STAGE_STATUS:
+                    return StageStatusRequest.fromJSON(request.requestBody()).executor(pluginRequest).execute();
+                case REQUEST_AGENT_STATUS:
+                    return AgentStatusRequest.fromJSON(request.requestBody()).executor(pluginRequest).execute();
                 default:
                     throw new UnhandledRequestTypeException(request.requestName());
             }
         } catch (Exception e) {
+            LOG.error("Failed to refresh configuration", e);
             throw new RuntimeException(e);
         }
     }

@@ -4,4 +4,8 @@ Ping a webhook with status updates from GoCD.
 
 ## Building the code base
 
-To build the jar, run `./gradlew clean test assemble`
+To build the jar, run `gradle clean assemble`
+
+## Tests
+
+`gradle clean test`

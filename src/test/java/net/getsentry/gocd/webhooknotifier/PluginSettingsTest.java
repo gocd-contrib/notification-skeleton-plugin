@@ -19,21 +19,22 @@ package net.getsentry.gocd.webhooknotifier;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 
 public class PluginSettingsTest {
     @Test
     public void shouldDeserializeFromJSON() throws Exception {
         PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
-                "\"go_server_url\": \"https://build.go.cd/go\", " +
-                "\"api_user\": \"bob\", " +
-                "\"api_key\": \"p@ssw0rd\", " +
-                "\"api_url\": \"https://cloud.example.com/api/v1\" " +
+                "\"webhook_urls\": \"https://api.example.com \n     \n https://api-2.example.com \"" +
                 "}");
 
-        assertThat(pluginSettings.getGoServerUrl(), is("https://build.go.cd/go"));
-        assertThat(pluginSettings.getApiUser(), is("bob"));
-        assertThat(pluginSettings.getApiKey(), is("p@ssw0rd"));
-        assertThat(pluginSettings.getApiUrl(), is("https://cloud.example.com/api/v1"));
+        assertThat(
+            "WebHook URLs",
+            pluginSettings.getWebhookURLs(),
+            arrayContainingInAnyOrder(
+                "https://api.example.com",
+                "https://api-2.example.com"
+            )
+        );
     }
 }
