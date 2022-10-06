@@ -2,7 +2,7 @@ name: Build and Test
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 # Cancel in progress workflows on pull_requests.
