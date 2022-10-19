@@ -50,7 +50,6 @@ public class WebhookNotifierPlugin implements GoPlugin {
     @Override
     public GoPluginApiResponse handle(GoPluginApiRequest request) throws UnhandledRequestTypeException {
         try {
-            System.out.printf("😺 WebhookNotifierPlugin->handle() %s\n", request.requestName());
             switch (Request.fromString(request.requestName())) {
                 case PLUGIN_SETTINGS_GET_VIEW:
                     return new GetSettingsViewRequestExecutor().execute();

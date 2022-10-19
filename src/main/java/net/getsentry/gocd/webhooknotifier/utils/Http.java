@@ -32,7 +32,6 @@ public class Http {
     PluginSettings ps = pluginRequest.getPluginSettings();
     String[] urls = ps.getTrimmedWebhookURLs();
     for (int i = 0; i < urls.length; i++) {
-        System.out.printf("😺 StageStatusRequestExecutor->sendNotification() send update to: %s\n", urls[i]);
         try {
           Post(urls[i], responseJsonStr);
         } catch (Exception e) {
