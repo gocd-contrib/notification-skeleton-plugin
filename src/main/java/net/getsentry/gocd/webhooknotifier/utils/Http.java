@@ -30,6 +30,11 @@ public class Http {
     String responseJsonStr = GSON.toJson(responseJson);
 
     PluginSettings ps = pluginRequest.getPluginSettings();
+    if (ps == null) {
+      // This can occur when the plugin is first installed
+      return;
+    }
+
     String[] urls = ps.getTrimmedWebhookURLs();
     for (int i = 0; i < urls.length; i++) {
         try {
