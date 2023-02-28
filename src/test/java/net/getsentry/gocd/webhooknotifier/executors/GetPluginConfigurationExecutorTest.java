@@ -47,7 +47,7 @@ public class GetPluginConfigurationExecutorTest {
         String expectedJSON = "{\n" +
                 "  \"webhook_urls\": {\n" +
                 "    \"display-name\": \"List of webhook URLs seperated by new lines.\",\n" +
-                "    \"required\": true,\n" +
+                "    \"required\": false,\n" +
                 "    \"secure\": false,\n" +
                 "    \"display-order\": \"0\"\n" +
                 "  }\n" +
