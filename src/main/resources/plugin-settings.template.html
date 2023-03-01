@@ -20,7 +20,7 @@ Ensure that the keys you use are also declared in the GetPluginConfigurationExec
 TODO: change this to your needs
 -->
 <div class="form_item_block">
-  <label>WebHook URL:<span class='asterix'>*</span></label>
+  <label>WebHook URLs (ensure each URL is on a seperate line):</label>
   <textarea type="text" ng-model="webhook_urls" ng-required="true"></textarea>
   <span class="form_error" ng-show="GOINPUTNAME[webhook_urls].$error.server">{{GOINPUTNAME[webhook_urls].$error.server}}</span>
 </div>
