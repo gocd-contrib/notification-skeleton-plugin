@@ -32,7 +32,7 @@ public class GetPluginConfigurationExecutor implements RequestExecutor {
 
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-    public static final Field WEBHOOK_URLS = new NonBlankField("webhook_urls", "List of webhook URLs seperated by new lines.", null, false, false, "0");
+    public static final Field WEBHOOK_URLS = new Field("webhook_urls", "List of webhook URLs seperated by new lines.", null, false, false, "0");
 
     public static final Map<String, Field> FIELDS = new LinkedHashMap<>();
 

@@ -26,17 +26,12 @@ import static org.junit.Assert.assertThat;
 
 public class ValidateConfigurationExecutorTest {
     @Test
-    public void shouldValidateABadConfiguration() throws Exception {
+    public void shouldValidateAnEmptyConfiguration() throws Exception {
         ValidatePluginSettings settings = new ValidatePluginSettings();
         GoPluginApiResponse response = new ValidateConfigurationExecutor(settings).execute();
 
         assertThat(response.responseCode(), is(200));
-        JSONAssert.assertEquals("[\n" +
-                "  {\n" +
-                "    \"message\": \"List of webhook URLs seperated by new lines. must not be blank.\",\n" +
-                "    \"key\": \"webhook_urls\"\n" +
-                "  }\n" +
-                "]", response.responseBody(), true);
+        JSONAssert.assertEquals("[]", response.responseBody(), true);
     }
 
     @Test
