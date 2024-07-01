@@ -16,6 +16,7 @@
 
 package net.getsentry.gocd.webhooknotifier;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
@@ -30,22 +31,31 @@ public class PluginSettings {
             create();
 
     @Expose
-    @SerializedName("webhook_urls")
-    private String webhookURLsValue;
+    @SerializedName("webhook_uris")
+    private String webhookURIsValue;
 
     public static PluginSettings fromJSON(String json) {
         return GSON.fromJson(json, PluginSettings.class);
     }
 
-    public String[] getTrimmedWebhookURLs() {
-        ArrayList<String> trimmed = new ArrayList<String>();
-        String[] lines = webhookURLsValue.split("\n");
+    public URI[] getWebhookURIs() {
+        ArrayList<URI> uris = new ArrayList<>();
+        String[] lines = webhookURIsValue.split("\n");
         for (int i = 0; i < lines.length; i++) {
-            String l = lines[i].trim();
-            if (l.length() > 0) {
-                trimmed.add(l);
+            String line = lines[i].trim();
+            if (line.length() > 0) {
+                try {
+                    URI parsedUri = new URI(line);
+                    if (parsedUri.getScheme() == null || !parsedUri.getScheme().contains("http")) {
+                        System.out.println("URI must use HTTP or HTTPS: " + line);
+                        continue;
+                    }
+                    uris.add(new URI(line));
+                } catch (Exception e) {
+                    System.out.println("Invalid URI: " + line);
+                }
             }
         }
-        return trimmed.toArray(new String[0]);
+        return uris.toArray(new URI[uris.size()]);
     }
 }

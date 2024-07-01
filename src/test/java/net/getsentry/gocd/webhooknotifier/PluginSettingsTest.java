@@ -21,19 +21,21 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 
+import java.net.URI;
+
 public class PluginSettingsTest {
     @Test
     public void shouldDeserializeFromJSON() throws Exception {
         PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
-                "\"webhook_urls\": \"https://api.example.com \n     \n https://api-2.example.com \"" +
+                "\"webhook_uris\": \"https://api.example.com \n     \n https://api-2.example.com \"" +
                 "}");
 
         assertThat(
-            "WebHook URLs",
-            pluginSettings.getTrimmedWebhookURLs(),
+            "WebHook URIs",
+            pluginSettings.getWebhookURIs(),
             arrayContainingInAnyOrder(
-                "https://api.example.com",
-                "https://api-2.example.com"
+                URI.create("https://api.example.com"),
+                URI.create("https://api-2.example.com")
             )
         );
     }
