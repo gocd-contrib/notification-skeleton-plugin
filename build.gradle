@@ -29,7 +29,7 @@ project.ext.pluginDesc = [
         vendorUrl  : 'https://github.com/getsentry/webhook-notification-plugin'
 ]
 
-// Force 1.7 compatibility to ensure that it works with older JVMs
+// Force 1.8 compatibility to ensure that it works with older JVMs
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
