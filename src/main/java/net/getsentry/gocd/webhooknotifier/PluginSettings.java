@@ -46,8 +46,9 @@ public class PluginSettings {
             if (line.length() > 0) {
                 try {
                     URI parsedUri = new URI(line);
-                    if (parsedUri.getScheme() == null || !parsedUri.getScheme().contains("http")) {
-                        System.out.println("URI must use HTTP or HTTPS: " + line);
+                    // Only allow HTTPS URIs
+                    if (parsedUri.getScheme() == null || !parsedUri.getScheme().equals("https")) {
+                        System.out.println("URI must use HTTPS: " + line);
                         continue;
                     }
                     uris.add(new URI(line));
