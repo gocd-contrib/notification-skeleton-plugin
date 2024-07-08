@@ -49,6 +49,6 @@ public class AgentStatusRequestExecutor implements RequestExecutor {
     }
 
     protected void sendNotification() throws Exception {
-        Http.PingWebhooks(this.pluginRequest, "agent", this.request);
+        Http.pingWebhooks(this.pluginRequest, "agent", this.request);
     }
 }

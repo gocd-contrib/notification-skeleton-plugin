@@ -54,6 +54,6 @@ public class StageStatusRequestExecutor implements RequestExecutor {
     }
 
     protected void sendNotification() throws Exception {
-        Http.PingWebhooks(this.pluginRequest, "stage", this.request);
+        Http.pingWebhooks(this.pluginRequest, "stage", this.request);
     }
 }

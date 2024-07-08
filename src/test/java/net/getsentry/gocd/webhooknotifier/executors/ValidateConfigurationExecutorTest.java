@@ -37,7 +37,17 @@ public class ValidateConfigurationExecutorTest {
     @Test
     public void shouldValidateAGoodConfiguration() throws Exception {
         ValidatePluginSettings settings = new ValidatePluginSettings();
-        settings.put("webhook_urls", "https://api.example.com\nhttps://api-2.example.com");
+        settings.put("webhook_uris", "https://api.example.com\nhttps://api-2.example.com");
+        GoPluginApiResponse response = new ValidateConfigurationExecutor(settings).execute();
+
+        assertThat(response.responseCode(), is(200));
+        JSONAssert.assertEquals("[]", response.responseBody(), true);
+    }
+
+    @Test
+    public void shouldValidateConfigurationWithValidUserInfo() throws Exception {
+        ValidatePluginSettings settings = new ValidatePluginSettings();
+        settings.put("webhook_uris", "https://me@example.com@example-webhook.com");
         GoPluginApiResponse response = new ValidateConfigurationExecutor(settings).execute();
 
         assertThat(response.responseCode(), is(200));

@@ -29,9 +29,9 @@ project.ext.pluginDesc = [
         vendorUrl  : 'https://github.com/getsentry/webhook-notification-plugin'
 ]
 
-// Force 1.7 compatibility to ensure that it works with older JVMs
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+// Force 1.8 compatibility to ensure that it works with older JVMs
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -51,6 +51,8 @@ dependencies {
     testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.1'
     testImplementation group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
     testImplementation group: 'cd.go.plugin', name: 'go-plugin-api', version: project.pluginDesc.goCdVersion
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
+    testImplementation group: 'org.mockito', name: 'mockito-inline', version: '3.12.4'
 }
 
 processResources {
