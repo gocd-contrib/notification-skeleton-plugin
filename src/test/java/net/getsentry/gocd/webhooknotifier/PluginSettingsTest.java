@@ -23,19 +23,30 @@ import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 
 public class PluginSettingsTest {
     @Test
+    public void shouldFailToDeserializeHttp() throws Exception {
+        PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
+                "\"webhooks\": \"http://api.example.com \n     \n https://api-2.example.com \"" +
+                "}");
+
+        assertThat(
+                "WebHooks",
+                pluginSettings.getWebhooks(),
+                arrayContainingInAnyOrder(
+                        new URLAudiencePair("https://api-2.example.com")));
+    }
+
+    @Test
     public void shouldDeserializeFromJSON() throws Exception {
         PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
                 "\"webhooks\": \"https://api.example.com \n     \n https://api-2.example.com \"" +
                 "}");
 
         assertThat(
-            "WebHooks",
-            pluginSettings.getWebhooks(),
-            arrayContainingInAnyOrder(
-                new URLAudiencePair("https://api.example.com"),
-                new URLAudiencePair("https://api-2.example.com")
-            )
-        );
+                "WebHooks",
+                pluginSettings.getWebhooks(),
+                arrayContainingInAnyOrder(
+                        new URLAudiencePair("https://api.example.com"),
+                        new URLAudiencePair("https://api-2.example.com")));
     }
 
     @Test
@@ -45,12 +56,10 @@ public class PluginSettingsTest {
                 "}");
 
         assertThat(
-            "WebHooks",
-            pluginSettings.getWebhooks(),
-            arrayContainingInAnyOrder(
-                new URLAudiencePair("https://api.example.com", "audience1"),
-                new URLAudiencePair("https://api-2.example.com", "audience2")
-            )
-        );
+                "WebHooks",
+                pluginSettings.getWebhooks(),
+                arrayContainingInAnyOrder(
+                        new URLAudiencePair("https://api.example.com", "audience1"),
+                        new URLAudiencePair("https://api-2.example.com", "audience2")));
     }
 }

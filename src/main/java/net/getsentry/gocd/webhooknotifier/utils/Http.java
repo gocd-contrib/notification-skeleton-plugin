@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 
 public class Http {
   protected static final String GCP_AUTH_METADATA_URL = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=";
@@ -52,7 +53,7 @@ public class Http {
     for (URLAudiencePair urlAudiencePair : urlAudiencePairs) {
       try {
         List<Header> headers = new ArrayList<Header>();
-        String url = urlAudiencePair.getUrl();
+        URL url = urlAudiencePair.getUrl();
         if (url == null) {
           continue;
         }
@@ -73,9 +74,9 @@ public class Http {
     pingWebhooks(pluginRequest, type, originalPayload, httpClient);
   }
 
-  protected static HttpResponse post(String endpoint, String requestBody, HttpClient client, Header... headers)
+  protected static HttpResponse post(URL endpoint, String requestBody, HttpClient client, Header... headers)
       throws UnsupportedEncodingException, IOException {
-    HttpPost post = new HttpPost(endpoint);
+    HttpPost post = new HttpPost(endpoint.toString());
     post.setEntity(new StringEntity(requestBody));
     post.setHeader("Content-type", "application/json");
     for (Header header : headers) {
@@ -84,7 +85,7 @@ public class Http {
     return client.execute(post);
   }
 
-  protected static HttpResponse post(String endpoint, String requestBody, Header... headers)
+  protected static HttpResponse post(URL endpoint, String requestBody, Header... headers)
       throws UnsupportedEncodingException, IOException {
     HttpClient httpClient = HttpClientBuilder.create().build();
     return post(endpoint, requestBody, httpClient, headers);

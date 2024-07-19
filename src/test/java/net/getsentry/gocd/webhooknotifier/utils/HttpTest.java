@@ -21,6 +21,7 @@ import org.apache.http.client.methods.HttpPost;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 
 public class HttpTest {
     @Test
@@ -29,7 +30,7 @@ public class HttpTest {
         HttpResponse mockResponse = mock(HttpResponse.class);
         when(mockClient.execute(any())).thenReturn(mockResponse);
 
-        HttpResponse response = Http.post("https://example.com", "fakeData", mockClient);
+        HttpResponse response = Http.post(new URL("https://example.com"), "fakeData", mockClient);
 
         verify(mockClient).execute(any(HttpPost.class));
         assertThat(response, is(mockResponse));
