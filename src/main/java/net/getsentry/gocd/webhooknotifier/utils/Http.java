@@ -15,6 +15,7 @@ import org.apache.http.util.EntityUtils;
 import net.getsentry.gocd.webhooknotifier.PluginRequest;
 import net.getsentry.gocd.webhooknotifier.PluginSettings;
 import net.getsentry.gocd.webhooknotifier.ServerRequestFailedException;
+import net.getsentry.gocd.webhooknotifier.URLAudiencePair;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -26,10 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 public class Http {
   protected static final String GCP_AUTH_METADATA_URL = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=";
@@ -51,18 +48,21 @@ public class Http {
       return;
     }
 
-    URI[] uris = ps.getWebhookURIs();
-    for (URI uri : uris) {
+    URLAudiencePair[] urlAudiencePairs = ps.getWebhooks();
+    for (URLAudiencePair urlAudiencePair : urlAudiencePairs) {
       try {
         List<Header> headers = new ArrayList<Header>();
-        String url = removeURIUserInfo(uri).toString();
-        String authToken = getAuthToken(uri, client);
+        String url = urlAudiencePair.getUrl();
+        if (url == null) {
+          continue;
+        }
+        String authToken = getAuthToken(urlAudiencePair, client);
         if (authToken != null) {
           headers.add(new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken));
         }
         post(url, responseJsonStr, client, headers.toArray(new Header[0]));
       } catch (Exception e) {
-        System.out.printf("    😺 failed to post request to %s: %s\n", uri, e.getMessage());
+        System.out.printf("    😺 failed to post request to %s with audience %s: %s\n", urlAudiencePair.getUrl(), urlAudiencePair.getAudience(), e.getMessage());
       }
     }
   }
@@ -90,15 +90,12 @@ public class Http {
     return post(endpoint, requestBody, httpClient, headers);
   }
 
-  protected static String getAuthToken(URI uri, HttpClient client)
-      throws URISyntaxException, MalformedURLException, IOException {
-    String userInfo = uri.getUserInfo();
-    if (userInfo == null) {
+  protected static String getAuthToken(URLAudiencePair urlAudiencePair, HttpClient client) {
+    String audience = urlAudiencePair.getAudience();
+    if (audience == null) {
       return null;
     }
-    String url = removeURIUserInfo(uri).toString();
-    // Note: This only works for GCP cloud functions (since they use the url as the audience)
-    String authUrl = GCP_AUTH_METADATA_URL + url;
+    String authUrl = GCP_AUTH_METADATA_URL + audience;
     try {
       HttpGet get = new HttpGet(authUrl);
       get.setHeader("Metadata-Flavor", "Google");
@@ -111,19 +108,8 @@ public class Http {
     }
   }
 
-  protected static String getAuthToken(URI uri) throws URISyntaxException, MalformedURLException, IOException {
+  protected static String getAuthToken(URLAudiencePair urlAudiencePair) {
     HttpClient httpClient = HttpClientBuilder.create().build();
-    return getAuthToken(uri, httpClient);
-  }
-
-  protected static URL removeURIUserInfo(URI u) throws URISyntaxException, MalformedURLException {
-    return new URI(
-        u.getScheme(),
-        null,
-        u.getHost(),
-        u.getPort(),
-        u.getPath(),
-        u.getQuery(),
-        u.getFragment()).toURL();
+    return getAuthToken(urlAudiencePair, httpClient);
   }
 }

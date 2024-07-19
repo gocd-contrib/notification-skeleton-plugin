@@ -21,21 +21,35 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 
-import java.net.URI;
-
 public class PluginSettingsTest {
     @Test
     public void shouldDeserializeFromJSON() throws Exception {
         PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
-                "\"webhook_uris\": \"https://api.example.com \n     \n https://api-2.example.com \"" +
+                "\"webhooks\": \"https://api.example.com \n     \n https://api-2.example.com \"" +
                 "}");
 
         assertThat(
-            "WebHook URIs",
-            pluginSettings.getWebhookURIs(),
+            "WebHooks",
+            pluginSettings.getWebhooks(),
             arrayContainingInAnyOrder(
-                URI.create("https://api.example.com"),
-                URI.create("https://api-2.example.com")
+                new URLAudiencePair("https://api.example.com"),
+                new URLAudiencePair("https://api-2.example.com")
+            )
+        );
+    }
+
+    @Test
+    public void shouldDeserializeFromJSONWithAudience() throws Exception {
+        PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
+                "\"webhooks\": \"https://api.example.com,audience1 \n     \n https://api-2.example.com,audience2 \"" +
+                "}");
+
+        assertThat(
+            "WebHooks",
+            pluginSettings.getWebhooks(),
+            arrayContainingInAnyOrder(
+                new URLAudiencePair("https://api.example.com", "audience1"),
+                new URLAudiencePair("https://api-2.example.com", "audience2")
             )
         );
     }

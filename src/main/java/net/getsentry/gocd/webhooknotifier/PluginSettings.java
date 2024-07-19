@@ -16,7 +16,6 @@
 
 package net.getsentry.gocd.webhooknotifier;
 
-import java.net.URI;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
@@ -31,32 +30,31 @@ public class PluginSettings {
             create();
 
     @Expose
-    @SerializedName("webhook_uris")
-    private String webhookURIsValue;
+    @SerializedName("webhooks")
+    private String webhooksValue;
 
     public static PluginSettings fromJSON(String json) {
         return GSON.fromJson(json, PluginSettings.class);
     }
 
-    public URI[] getWebhookURIs() {
-        ArrayList<URI> uris = new ArrayList<>();
-        String[] lines = webhookURIsValue.split("\n");
+    public URLAudiencePair[] getWebhooks() {
+        ArrayList<URLAudiencePair> urlAudiencePairs = new ArrayList<>();
+        String[] lines = webhooksValue.split("\n");
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
             if (line.length() > 0) {
                 try {
-                    URI parsedUri = new URI(line);
-                    // Only allow HTTPS URIs
-                    if (parsedUri.getScheme() == null || !parsedUri.getScheme().equals("https")) {
-                        System.out.println("URI must use HTTPS: " + line);
-                        continue;
+                    String[] parts = line.split(",");
+                    if (parts.length == 2) {
+                        urlAudiencePairs.add(new URLAudiencePair(parts[0].trim(), parts[1].trim()));
+                    } else {
+                        urlAudiencePairs.add(new URLAudiencePair(parts[0].trim(), null));
                     }
-                    uris.add(new URI(line));
                 } catch (Exception e) {
-                    System.out.println("Invalid URI: " + line);
+                    System.out.println("Error parsing webhook: " + line);
                 }
             }
         }
-        return uris.toArray(new URI[uris.size()]);
+        return urlAudiencePairs.toArray(new URLAudiencePair[urlAudiencePairs.size()]);
     }
 }
