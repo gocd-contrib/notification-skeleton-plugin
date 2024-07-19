@@ -32,12 +32,12 @@ public class GetPluginConfigurationExecutor implements RequestExecutor {
 
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-    public static final Field WEBHOOK_URIS = new Field("webhook_uris", "List of URIs seperated by new lines.", null, false, false, "0");
+    public static final Field WEBHOOKS = new Field("webhooks", "List of URLs seperated by new lines.", null, false, false, "0");
 
     public static final Map<String, Field> FIELDS = new LinkedHashMap<>();
 
     static {
-        FIELDS.put(WEBHOOK_URIS.key(), WEBHOOK_URIS);
+        FIELDS.put(WEBHOOKS.key(), WEBHOOKS);
     }
 
     public GoPluginApiResponse execute() {

@@ -5,6 +5,7 @@ import org.junit.Test;
 import net.getsentry.gocd.webhooknotifier.PluginRequest;
 import net.getsentry.gocd.webhooknotifier.PluginSettings;
 import net.getsentry.gocd.webhooknotifier.ServerRequestFailedException;
+import net.getsentry.gocd.webhooknotifier.URLAudiencePair;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -20,8 +21,7 @@ import org.apache.http.client.methods.HttpPost;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URL;
 
 public class HttpTest {
     @Test
@@ -30,24 +30,24 @@ public class HttpTest {
         HttpResponse mockResponse = mock(HttpResponse.class);
         when(mockClient.execute(any())).thenReturn(mockResponse);
 
-        HttpResponse response = Http.post("https://example.com", "fakeData", mockClient);
+        HttpResponse response = Http.post(new URL("https://example.com"), "fakeData", mockClient);
 
         verify(mockClient).execute(any(HttpPost.class));
         assertThat(response, is(mockResponse));
     }
 
     @Test
-    public void testGetAuthTokenException() throws URISyntaxException, IOException {
+    public void testGetAuthTokenException() throws IOException {
         HttpClient mockClient = mock(HttpClient.class);
         when(mockClient.execute(HttpGet.class.cast(any()))).thenThrow(new IOException());
 
-        String authToken = Http.getAuthToken(new URI("https://user%40example.com@example.com"), mockClient);
+        String authToken = Http.getAuthToken(new URLAudiencePair("https://example.com", "fakeAudience"), mockClient);
 
         assertThat(authToken, is(nullValue()));
     }
 
     @Test
-    public void testGetAuthToken() throws URISyntaxException, IOException {
+    public void testGetAuthToken() throws IOException {
         HttpClient mockClient = mock(HttpClient.class);
         HttpResponse mockResponse = mock(HttpResponse.class);
         HttpEntity mockHttpEntity = mock(HttpEntity.class);
@@ -56,11 +56,11 @@ public class HttpTest {
         when(mockHttpEntity.getContent()).thenReturn(new ByteArrayInputStream("fakeToken".getBytes()));
         when(mockClient.execute(any())).thenReturn(mockResponse);
 
-        String authToken = Http.getAuthToken(new URI("https://user%40example.com@example.com"), mockClient);
+        String authToken = Http.getAuthToken(new URLAudiencePair("https://example.com", "fakeAudience"), mockClient);
 
         verify(mockClient).execute(argThat((HttpGet request) -> {
             try {
-                return request.getURI().toString().equals(Http.GCP_AUTH_METADATA_URL + "https://example.com");
+                return request.getURI().toString().equals(Http.GCP_AUTH_METADATA_URL + "fakeAudience");
             } catch (Exception e) {
                 return false;
             }
@@ -69,7 +69,7 @@ public class HttpTest {
     }
 
     @Test
-    public void testPingWebhooksFirstInstall() throws URISyntaxException, IOException, ServerRequestFailedException {
+    public void testPingWebhooksFirstInstall() throws IOException, ServerRequestFailedException {
         HttpClient mockClient = mock(HttpClient.class);
         PluginRequest mockPluginRequest = mock(PluginRequest.class);
         when(mockPluginRequest.getPluginSettings()).thenReturn(null);
@@ -81,11 +81,11 @@ public class HttpTest {
     }
 
     @Test
-    public void testPingWebhooksWithAuthToken() throws URISyntaxException, IOException, ServerRequestFailedException {
+    public void testPingWebhooksWithAuthToken() throws IOException, ServerRequestFailedException {
         HttpClient mockClient = mock(HttpClient.class);
         PluginRequest mockPluginRequest = mock(PluginRequest.class);
         PluginSettings mockPluginSettings = mock(PluginSettings.class);
-        when(mockPluginSettings.getWebhookURIs()).thenReturn(new URI[] { new URI("https://user%40example.com@example.com") });
+        when(mockPluginSettings.getWebhooks()).thenReturn(new URLAudiencePair[] { new URLAudiencePair("https://example.com", "fakeAudience") });
         when(mockPluginRequest.getPluginSettings()).thenReturn(mockPluginSettings);
 
         HttpResponse mockGetResponse = mock(HttpResponse.class);
@@ -103,7 +103,7 @@ public class HttpTest {
             if (request instanceof HttpGet) {
                 HttpGet getRequest = (HttpGet) request;
                 try {
-                    return getRequest.getURI().toString().equals(Http.GCP_AUTH_METADATA_URL + "https://example.com");
+                    return getRequest.getURI().toString().equals(Http.GCP_AUTH_METADATA_URL + "fakeAudience");
                 } catch (Exception e) {
                     return false;
                 }
@@ -124,11 +124,11 @@ public class HttpTest {
     }
 
     @Test
-    public void testPingWebhooks() throws URISyntaxException, IOException, ServerRequestFailedException {
+    public void testPingWebhooks() throws IOException, ServerRequestFailedException {
         HttpClient mockClient = mock(HttpClient.class);
         PluginRequest mockPluginRequest = mock(PluginRequest.class);
         PluginSettings mockPluginSettings = mock(PluginSettings.class);
-        when(mockPluginSettings.getWebhookURIs()).thenReturn(new URI[] { new URI("https://example.com") });
+        when(mockPluginSettings.getWebhooks()).thenReturn(new URLAudiencePair[] { new URLAudiencePair("https://example.com") });
         when(mockPluginRequest.getPluginSettings()).thenReturn(mockPluginSettings);
 
         Http.pingWebhooks(mockPluginRequest, "stage", "fakeData", mockClient);
@@ -143,11 +143,11 @@ public class HttpTest {
     }
 
     @Test
-    public void testPingWebhooksMultiple() throws URISyntaxException, IOException, ServerRequestFailedException {
+    public void testPingWebhooksMultiple() throws IOException, ServerRequestFailedException {
         HttpClient mockClient = mock(HttpClient.class);
         PluginRequest mockPluginRequest = mock(PluginRequest.class);
         PluginSettings mockPluginSettings = mock(PluginSettings.class);
-        when(mockPluginSettings.getWebhookURIs()).thenReturn(new URI[] { new URI("https://example.com"), new URI("https://example2.com") });
+        when(mockPluginSettings.getWebhooks()).thenReturn(new URLAudiencePair[] { new URLAudiencePair("https://example.com"), new URLAudiencePair("https://example2.com") });
         when(mockPluginRequest.getPluginSettings()).thenReturn(mockPluginSettings);
 
         Http.pingWebhooks(mockPluginRequest, "stage", "fakeData", mockClient);
@@ -162,11 +162,11 @@ public class HttpTest {
     }
 
     @Test
-    public void testPingWebhooksException() throws URISyntaxException, IOException, ServerRequestFailedException {
+    public void testPingWebhooksException() throws IOException, ServerRequestFailedException {
         HttpClient mockClient = mock(HttpClient.class);
         PluginRequest mockPluginRequest = mock(PluginRequest.class);
         PluginSettings mockPluginSettings = mock(PluginSettings.class);
-        when(mockPluginSettings.getWebhookURIs()).thenReturn(new URI[] { new URI("https://example.com") });
+        when(mockPluginSettings.getWebhooks()).thenReturn(new URLAudiencePair[] { new URLAudiencePair("https://example.com") });
         when(mockPluginRequest.getPluginSettings()).thenReturn(mockPluginSettings);
         doThrow(new IOException()).when(mockClient).execute(any());
 
