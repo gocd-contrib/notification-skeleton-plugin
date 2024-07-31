@@ -20,7 +20,12 @@ Ensure that the keys you use are also declared in the GetPluginConfigurationExec
 TODO: change this to your needs
 -->
 <div class="form_item_block">
-  <label>URL for the webhook to be called and optionally an audience used to authenticate with a comma separating the two values (and non comma if no audience is provided) (NOTE: each URL audience pair should be on a separate line)</label>
+  <label>
+    URL for the webhook to be called and optionally a means of authentication with a comma separating the two values (and non comma if no auth is provided).
+    The current options for auth are are an audience for general GCP auth and a reference to a secret in GCP secret manager to be used to generate an hmac signature.
+    The latter should be prefixed with "gcp-secret:".
+    (NOTE: each entry should be on a separate line)
+  </label>
   <textarea type="text" ng-model="webhooks" ng-required="true"></textarea>
   <span class="form_error" ng-show="GOINPUTNAME[webhooks].$error.server">{{GOINPUTNAME[webhooks].$error.server}}</span>
 </div>
