@@ -15,7 +15,7 @@ import org.apache.http.util.EntityUtils;
 import net.getsentry.gocd.webhooknotifier.PluginRequest;
 import net.getsentry.gocd.webhooknotifier.PluginSettings;
 import net.getsentry.gocd.webhooknotifier.ServerRequestFailedException;
-import net.getsentry.gocd.webhooknotifier.URLAudiencePair;
+import net.getsentry.gocd.webhooknotifier.URLWithAuth;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -25,11 +25,17 @@ import com.google.gson.FieldNamingPolicy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 
 public class Http {
+  protected static final String SIGNATURE_HEADER = "x-gocd-signature";
   protected static final String GCP_AUTH_METADATA_URL = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=";
 
   private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -49,21 +55,25 @@ public class Http {
       return;
     }
 
-    URLAudiencePair[] urlAudiencePairs = ps.getWebhooks();
-    for (URLAudiencePair urlAudiencePair : urlAudiencePairs) {
+    URLWithAuth[] urlWithAuths = ps.getWebhooks();
+    for (URLWithAuth urlWithAuth : urlWithAuths) {
       try {
         List<Header> headers = new ArrayList<Header>();
-        URL url = urlAudiencePair.getUrl();
+        URL url = urlWithAuth.getUrl();
         if (url == null) {
           continue;
         }
-        String authToken = getAuthToken(urlAudiencePair, client);
+        String authToken = getAuthToken(urlWithAuth, client);
         if (authToken != null) {
           headers.add(new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken));
         }
+        if (urlWithAuth.getSecretValue() != null) {
+          headers.add(new BasicHeader("x-gocd-signature", createSignature(responseJsonStr, urlWithAuth.getSecretValue())));
+        }
+
         post(url, responseJsonStr, client, headers.toArray(new Header[0]));
       } catch (Exception e) {
-        System.out.printf("    😺 failed to post request to %s with audience %s: %s\n", urlAudiencePair.getUrl(), urlAudiencePair.getAudience(), e.getMessage());
+        System.out.printf("    😺 failed to post request to %s with audience %s: %s\n", urlWithAuth.getUrl(), urlWithAuth.getAudience(), e.getMessage());
       }
     }
   }
@@ -91,8 +101,24 @@ public class Http {
     return post(endpoint, requestBody, httpClient, headers);
   }
 
-  protected static String getAuthToken(URLAudiencePair urlAudiencePair, HttpClient client) {
-    String audience = urlAudiencePair.getAudience();
+  protected static String createSignature(String payload, String secret) throws NoSuchAlgorithmException {
+    Mac sha256Mac = Mac.getInstance("HmacSHA256");
+    SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), sha256Mac.getAlgorithm());
+    try {
+      sha256Mac.init(secretKeySpec);
+    } catch (Exception e) {
+      throw new NoSuchAlgorithmException("Failed to initialize HmacSHA256: " + e.getMessage());
+    }
+    byte[] macBytes = sha256Mac.doFinal(payload.getBytes());
+    StringBuilder result = new StringBuilder();
+    for (byte b : macBytes) {
+      result.append(String.format("%02x", b));
+    }
+    return result.toString();
+  }
+
+  protected static String getAuthToken(URLWithAuth urlWithAuth, HttpClient client) {
+    String audience = urlWithAuth.getAudience();
     if (audience == null) {
       return null;
     }
@@ -109,8 +135,8 @@ public class Http {
     }
   }
 
-  protected static String getAuthToken(URLAudiencePair urlAudiencePair) {
+  protected static String getAuthToken(URLWithAuth urlWithAuth) {
     HttpClient httpClient = HttpClientBuilder.create().build();
-    return getAuthToken(urlAudiencePair, httpClient);
+    return getAuthToken(urlWithAuth, httpClient);
   }
 }
