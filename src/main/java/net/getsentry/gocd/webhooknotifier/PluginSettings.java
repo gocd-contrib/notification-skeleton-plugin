@@ -17,14 +17,18 @@
 package net.getsentry.gocd.webhooknotifier;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.google.cloud.secretmanager.v1.AccessSecretVersionResponse;
+import com.google.cloud.secretmanager.v1.SecretManagerServiceClient;
 
 // Implement any settings that your plugin needs
 public class PluginSettings {
+    private static final ConcurrentHashMap<String, String> secretCache = new ConcurrentHashMap<>();
     private static final Gson GSON = new GsonBuilder().
             excludeFieldsWithoutExposeAnnotation().
             create();
@@ -37,8 +41,8 @@ public class PluginSettings {
         return GSON.fromJson(json, PluginSettings.class);
     }
 
-    public URLAudiencePair[] getWebhooks() {
-        ArrayList<URLAudiencePair> urlAudiencePairs = new ArrayList<>();
+    public URLWithAuth[] getWebhooks(SecretManagerServiceClient client) {
+        ArrayList<URLWithAuth> urlWithAuths = new ArrayList<>();
         String[] lines = webhooksValue.split("\n");
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
@@ -46,15 +50,51 @@ public class PluginSettings {
                 try {
                     String[] parts = line.split(",");
                     if (parts.length == 2) {
-                        urlAudiencePairs.add(new URLAudiencePair(parts[0].trim(), parts[1].trim()));
+                        if (isGCPSecret(parts[1].trim())) {
+                            if (client == null) {
+                                throw new Exception("SecretManagerServiceClient is null");
+                            }
+                            urlWithAuths.add(new URLWithAuth(parts[0].trim(), null, getSecretValue(client, parts[1].trim())));
+                        } else {
+                            urlWithAuths.add(new URLWithAuth(parts[0].trim(), parts[1].trim()));
+                        }
                     } else {
-                        urlAudiencePairs.add(new URLAudiencePair(parts[0].trim(), null));
+                        urlWithAuths.add(new URLWithAuth(parts[0].trim(), null));
                     }
                 } catch (Exception e) {
                     System.out.println("Error parsing webhook: " + line);
                 }
             }
         }
-        return urlAudiencePairs.toArray(new URLAudiencePair[urlAudiencePairs.size()]);
+        return urlWithAuths.toArray(new URLWithAuth[urlWithAuths.size()]);
+    }
+
+    public URLWithAuth[] getWebhooks() {
+        try (SecretManagerServiceClient client = SecretManagerServiceClient.create()) {
+            return getWebhooks(client);
+        } catch (Exception e) {
+            System.out.println("Error creating SecretManagerServiceClient");
+            return getWebhooks(null);
+        }
+    }
+
+    private boolean isGCPSecret(String value) {
+        return value.startsWith("gcp-secret:");
+    }
+
+    private String getSecretValue(SecretManagerServiceClient client, String secretReference) {
+        return secretCache.computeIfAbsent(secretReference, key -> {
+            try {
+                String secretName = secretReference.substring("gcp-secret:".length());
+                String[] parts = secretName.split("/");
+                String secretId = parts[parts.length - 1];
+                String projectId = parts[1];
+                AccessSecretVersionResponse response = client.accessSecretVersion("projects/" + projectId + "/secrets/" + secretId + "/versions/latest");
+                return response.getPayload().getData().toStringUtf8();
+            } catch (Exception e) {
+                System.out.println("Error fetching secret: " + secretReference);
+                return null;
+            }
+        });
     }
 }

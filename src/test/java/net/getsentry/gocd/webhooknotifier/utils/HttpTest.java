@@ -5,7 +5,7 @@ import org.junit.Test;
 import net.getsentry.gocd.webhooknotifier.PluginRequest;
 import net.getsentry.gocd.webhooknotifier.PluginSettings;
 import net.getsentry.gocd.webhooknotifier.ServerRequestFailedException;
-import net.getsentry.gocd.webhooknotifier.URLAudiencePair;
+import net.getsentry.gocd.webhooknotifier.URLWithAuth;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 
 public class HttpTest {
     @Test
@@ -41,7 +42,7 @@ public class HttpTest {
         HttpClient mockClient = mock(HttpClient.class);
         when(mockClient.execute(HttpGet.class.cast(any()))).thenThrow(new IOException());
 
-        String authToken = Http.getAuthToken(new URLAudiencePair("https://example.com", "fakeAudience"), mockClient);
+        String authToken = Http.getAuthToken(new URLWithAuth("https://example.com", "fakeAudience"), mockClient);
 
         assertThat(authToken, is(nullValue()));
     }
@@ -56,7 +57,7 @@ public class HttpTest {
         when(mockHttpEntity.getContent()).thenReturn(new ByteArrayInputStream("fakeToken".getBytes()));
         when(mockClient.execute(any())).thenReturn(mockResponse);
 
-        String authToken = Http.getAuthToken(new URLAudiencePair("https://example.com", "fakeAudience"), mockClient);
+        String authToken = Http.getAuthToken(new URLWithAuth("https://example.com", "fakeAudience"), mockClient);
 
         verify(mockClient).execute(argThat((HttpGet request) -> {
             try {
@@ -85,7 +86,7 @@ public class HttpTest {
         HttpClient mockClient = mock(HttpClient.class);
         PluginRequest mockPluginRequest = mock(PluginRequest.class);
         PluginSettings mockPluginSettings = mock(PluginSettings.class);
-        when(mockPluginSettings.getWebhooks()).thenReturn(new URLAudiencePair[] { new URLAudiencePair("https://example.com", "fakeAudience") });
+        when(mockPluginSettings.getWebhooks()).thenReturn(new URLWithAuth[] { new URLWithAuth("https://example.com", "fakeAudience") });
         when(mockPluginRequest.getPluginSettings()).thenReturn(mockPluginSettings);
 
         HttpResponse mockGetResponse = mock(HttpResponse.class);
@@ -128,7 +129,7 @@ public class HttpTest {
         HttpClient mockClient = mock(HttpClient.class);
         PluginRequest mockPluginRequest = mock(PluginRequest.class);
         PluginSettings mockPluginSettings = mock(PluginSettings.class);
-        when(mockPluginSettings.getWebhooks()).thenReturn(new URLAudiencePair[] { new URLAudiencePair("https://example.com") });
+        when(mockPluginSettings.getWebhooks()).thenReturn(new URLWithAuth[] { new URLWithAuth("https://example.com") });
         when(mockPluginRequest.getPluginSettings()).thenReturn(mockPluginSettings);
 
         Http.pingWebhooks(mockPluginRequest, "stage", "fakeData", mockClient);
@@ -147,7 +148,7 @@ public class HttpTest {
         HttpClient mockClient = mock(HttpClient.class);
         PluginRequest mockPluginRequest = mock(PluginRequest.class);
         PluginSettings mockPluginSettings = mock(PluginSettings.class);
-        when(mockPluginSettings.getWebhooks()).thenReturn(new URLAudiencePair[] { new URLAudiencePair("https://example.com"), new URLAudiencePair("https://example2.com") });
+        when(mockPluginSettings.getWebhooks()).thenReturn(new URLWithAuth[] { new URLWithAuth("https://example.com"), new URLWithAuth("https://example2.com") });
         when(mockPluginRequest.getPluginSettings()).thenReturn(mockPluginSettings);
 
         Http.pingWebhooks(mockPluginRequest, "stage", "fakeData", mockClient);
@@ -166,12 +167,37 @@ public class HttpTest {
         HttpClient mockClient = mock(HttpClient.class);
         PluginRequest mockPluginRequest = mock(PluginRequest.class);
         PluginSettings mockPluginSettings = mock(PluginSettings.class);
-        when(mockPluginSettings.getWebhooks()).thenReturn(new URLAudiencePair[] { new URLAudiencePair("https://example.com") });
+        when(mockPluginSettings.getWebhooks()).thenReturn(new URLWithAuth[] { new URLWithAuth("https://example.com") });
         when(mockPluginRequest.getPluginSettings()).thenReturn(mockPluginSettings);
         doThrow(new IOException()).when(mockClient).execute(any());
 
         Http.pingWebhooks(mockPluginRequest, "stage", "fakeData", mockClient);
 
         verify(mockClient).execute(any());
+    }
+
+    @Test
+    public void testPingWebhooksWithSecret() throws IOException, ServerRequestFailedException {
+        HttpClient mockClient = mock(HttpClient.class);
+        PluginRequest mockPluginRequest = mock(PluginRequest.class);
+        PluginSettings mockPluginSettings = mock(PluginSettings.class);
+        when(mockPluginSettings.getWebhooks()).thenReturn(new URLWithAuth[] { new URLWithAuth("https://example.com", null, "webhooksecret") });
+        when(mockPluginRequest.getPluginSettings()).thenReturn(mockPluginSettings);
+
+        Http.pingWebhooks(mockPluginRequest, "stage", "fakeData", mockClient);
+
+        verify(mockClient).execute(argThat((HttpPost request) -> {
+            try {
+                return request.getURI().toString().equals("https://example.com") && request.getHeaders("x-gocd-signature")[0].getValue().equals("64b0880a3e39c6dc74ab0a3db5b7fc7efc6dd8b70e3cb026d6af0b74b8b183c6");
+            } catch (Exception e) {
+                return false;
+            }
+        }));
+    }
+
+    @Test
+    public void testCreateSignature() throws NoSuchAlgorithmException {
+        String signature = Http.createSignature("test", "webhooksecret");
+        assertThat(signature, is("d01e0bee5d3b7783715126071e1c94df60bee516b4d6b1cb92896265cbbfe894"));
     }
 }

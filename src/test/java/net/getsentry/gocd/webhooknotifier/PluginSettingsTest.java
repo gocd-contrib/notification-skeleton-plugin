@@ -16,50 +16,127 @@
 
 package net.getsentry.gocd.webhooknotifier;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import com.google.cloud.secretmanager.v1.AccessSecretVersionResponse;
+import com.google.cloud.secretmanager.v1.SecretManagerServiceClient;
+import com.google.cloud.secretmanager.v1.SecretPayload;
+import com.google.protobuf.ByteString;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 public class PluginSettingsTest {
-    @Test
-    public void shouldFailToDeserializeHttp() throws Exception {
-        PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
-                "\"webhooks\": \"http://api.example.com \n     \n https://api-2.example.com \"" +
-                "}");
+        private SecretManagerServiceClient mockClient;
 
-        assertThat(
-                "WebHooks",
-                pluginSettings.getWebhooks(),
-                arrayContainingInAnyOrder(
-                        new URLAudiencePair("https://api-2.example.com")));
-    }
+        @Before
+        public void setUp() {
+                mockClient = mock(SecretManagerServiceClient.class);
+        }
 
-    @Test
-    public void shouldDeserializeFromJSON() throws Exception {
-        PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
-                "\"webhooks\": \"https://api.example.com \n     \n https://api-2.example.com \"" +
-                "}");
+        @After
+        public void tearDown() {
+                reset(mockClient);
+        }
 
-        assertThat(
-                "WebHooks",
-                pluginSettings.getWebhooks(),
-                arrayContainingInAnyOrder(
-                        new URLAudiencePair("https://api.example.com"),
-                        new URLAudiencePair("https://api-2.example.com")));
-    }
+        @Test
+        public void shouldFailToDeserializeHttp() throws Exception {
+                PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
+                                "\"webhooks\": \"http://api.example.com \n     \n https://api-2.example.com \"" +
+                                "}");
 
-    @Test
-    public void shouldDeserializeFromJSONWithAudience() throws Exception {
-        PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
-                "\"webhooks\": \"https://api.example.com,audience1 \n     \n https://api-2.example.com,audience2 \"" +
-                "}");
+                assertThat(
+                                "WebHooks",
+                                pluginSettings.getWebhooks(),
+                                arrayContainingInAnyOrder(
+                                                new URLWithAuth("https://api-2.example.com")));
+        }
 
-        assertThat(
-                "WebHooks",
-                pluginSettings.getWebhooks(),
-                arrayContainingInAnyOrder(
-                        new URLAudiencePair("https://api.example.com", "audience1"),
-                        new URLAudiencePair("https://api-2.example.com", "audience2")));
-    }
+        @Test
+        public void shouldDeserializeFromJSON() throws Exception {
+                PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
+                                "\"webhooks\": \"https://api.example.com \n     \n https://api-2.example.com \"" +
+                                "}");
+
+                assertThat(
+                                "WebHooks",
+                                pluginSettings.getWebhooks(),
+                                arrayContainingInAnyOrder(
+                                                new URLWithAuth("https://api.example.com"),
+                                                new URLWithAuth("https://api-2.example.com")));
+        }
+
+        @Test
+        public void shouldDeserializeFromJSONWithAudience() throws Exception {
+                PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
+                                "\"webhooks\": \"https://api.example.com,audience1 \n     \n https://api-2.example.com,audience2 \""
+                                +
+                                "}");
+
+                assertThat(
+                                "WebHooks",
+                                pluginSettings.getWebhooks(),
+                                arrayContainingInAnyOrder(
+                                                new URLWithAuth("https://api.example.com", "audience1"),
+                                                new URLWithAuth("https://api-2.example.com", "audience2")));
+        }
+
+        @Test
+        public void shouldDeserializeFromJSONWithGCPSecret() throws Exception {
+                when(mockClient.accessSecretVersion(any(String.class)))
+                                .thenReturn(AccessSecretVersionResponse.newBuilder().setName("secret1")
+                                                .setPayload(SecretPayload.newBuilder()
+                                                                .setData(ByteString.copyFromUtf8("supersecret")))
+                                                .build());
+
+                PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
+                                "\"webhooks\": \"https://api.example.com,gcp-secret:projects/123/secrets/secret1 \n     \n https://api-2.example.com \""
+                                +
+                                "}");
+
+                assertThat(
+                                "WebHooks",
+                                pluginSettings.getWebhooks(mockClient),
+                                arrayContainingInAnyOrder(
+                                                new URLWithAuth("https://api.example.com", null, "supersecret"),
+                                                new URLWithAuth("https://api-2.example.com", null)));
+        }
+
+        @Test
+        public void shouldFailGracefullyIfSecretManagerFails() throws Exception {
+                when(mockClient.accessSecretVersion(any(String.class)))
+                                .thenThrow(new RuntimeException("Failed to fetch secret"));
+
+                PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
+                                "\"webhooks\": \"https://api.example.com,gcp-secret:projects/123/secrets/secret2 \n     \n https://api-2.example.com \""
+                                +
+                                "}");
+
+                assertThat(
+                                "WebHooks",
+                                pluginSettings.getWebhooks(mockClient),
+                                arrayContainingInAnyOrder(
+                                                new URLWithAuth("https://api.example.com", null),
+                                                new URLWithAuth("https://api-2.example.com", null)));
+        }
+
+        @Test
+        public void shouldFailGracefullyIfSecretManagerIsNotAvailable() throws Exception {
+                PluginSettings pluginSettings = PluginSettings.fromJSON("{" +
+                                "\"webhooks\": \"https://api.example.com,gcp-secret:projects/1233/secrets/secret3 \n     \n https://api-2.example.com \""
+                                +
+                                "}");
+
+                assertThat(
+                                "WebHooks",
+                                pluginSettings.getWebhooks(null),
+                                arrayContainingInAnyOrder(
+                                                new URLWithAuth("https://api-2.example.com", null)));
+        }
 }
