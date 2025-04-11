@@ -30,8 +30,7 @@ public class DefaultDateTypeAdapter implements JsonSerializer<Date>, JsonDeseria
     @Override
     public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
         synchronized (localFormat) {
-            // TODO: temporary hack to address https://stackoverflow.com/questions/77225936/java-21-problem-with-dateformat-getdatetimeinstance-formatnew-date/77226045#77226045
-            String dateFormatAsString = enUsFormat.format(src).replaceAll(String.valueOf((char) 8239), " ");
+            String dateFormatAsString = enUsFormat.format(src);
             return new JsonPrimitive(dateFormatAsString);
         }
     }

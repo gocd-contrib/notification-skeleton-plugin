@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.FieldNamingPolicy;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,10 +29,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 public class Http {
+  private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
   protected static final String SIGNATURE_HEADER = "x-gocd-signature";
   protected static final String GCP_AUTH_METADATA_URL = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=";
 
-  private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+  private static final Gson GSON = new GsonBuilder()
+      .registerTypeAdapter(Date.class, new DefaultDateTypeAdapter(DATE_PATTERN))
+      .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
       .create();
 
   public static void pingWebhooks(PluginRequest pluginRequest, String type, Object originalPayload, HttpClient client)
