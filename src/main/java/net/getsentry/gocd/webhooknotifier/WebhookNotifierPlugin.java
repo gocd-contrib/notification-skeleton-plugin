@@ -32,11 +32,32 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 import static net.getsentry.gocd.webhooknotifier.Constants.PLUGIN_IDENTIFIER;
+import io.sentry.Sentry;
+import io.sentry.ITransaction;
 
 @Extension
 public class WebhookNotifierPlugin implements GoPlugin {
 
     public static final Logger LOG = Logger.getLoggerFor(WebhookNotifierPlugin.class);
+
+    static {
+        String hostname = System.getenv("HOSTNAME");
+        final String environment;
+        if (hostname != null && hostname.contains("deploy")) {
+            environment = hostname.contains("staging") ? "staging" : "production";
+        } else {
+            environment = "dev";
+        }
+        
+        Sentry.init(options -> {
+            options.setDsn("https://989fe818e06c640a6688a08a208325ec@o1.ingest.us.sentry.io/4510070253289472");
+            options.setEnvironment(environment);
+            options.setTracesSampleRate(1.0);
+            options.setEnableTracing(true);
+            options.setSendDefaultPii(true);
+        });
+        LOG.info("Sentry initialized for webhook-notifier plugin with tracing enabled");
+    }
 
     private GoApplicationAccessor accessor;
     private PluginRequest pluginRequest;
@@ -49,8 +70,15 @@ public class WebhookNotifierPlugin implements GoPlugin {
 
     @Override
     public GoPluginApiResponse handle(GoPluginApiRequest request) throws UnhandledRequestTypeException {
+        ITransaction transaction = null;
+        Request requestType = Request.fromString(request.requestName());
+        
+        if (requestType == Request.REQUEST_STAGE_STATUS || requestType == Request.REQUEST_AGENT_STATUS) {
+            transaction = Sentry.startTransaction("gocd.webhook.handle", request.requestName());
+        }
+        
         try {
-            switch (Request.fromString(request.requestName())) {
+            switch (requestType) {
                 case PLUGIN_SETTINGS_GET_VIEW:
                     return new GetSettingsViewRequestExecutor().execute();
                 case REQUEST_NOTIFICATIONS_INTERESTED_IN:
@@ -70,6 +98,10 @@ public class WebhookNotifierPlugin implements GoPlugin {
         } catch (Exception e) {
             LOG.error("Failed to refresh configuration", e);
             throw new RuntimeException(e);
+        } finally {
+            if (transaction != null) {
+                transaction.finish();
+            }
         }
     }
 
