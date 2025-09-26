@@ -58,6 +58,7 @@ public class Http {
     ISpan webhooksSpan = Sentry.startTransaction("webhook.notification", type);
     
     for (URLWithAuth urlWithAuth : urlWithAuths) {
+      ISpan httpPostSpan = null;
       try {
         List<Header> headers = new ArrayList<Header>();
         URL url = urlWithAuth.getUrl();
@@ -72,14 +73,19 @@ public class Http {
           headers.add(new BasicHeader("x-gocd-signature", Auth.createSignature(responseJsonStr, urlWithAuth.getSecretValue())));
         }
 
-        ISpan httpPostSpan = webhooksSpan.startChild("http.post");
+        httpPostSpan = webhooksSpan.startChild("http.post");
         httpPostSpan.setData("webhook.url", url.toString());
+        System.out.printf("Sending webhook to %s\n", url.toString());
         HttpResponse response = post(url, responseJsonStr, client, headers.toArray(new Header[0]));
         int statusCode = response.getStatusLine().getStatusCode();
         httpPostSpan.setData("webhook.status_code", statusCode);
         httpPostSpan.finish();
       } catch (Exception e) {
         System.out.printf("    😺 failed to post request to %s with audience %s: %s\n", urlWithAuth.getUrl(), urlWithAuth.getAudience(), e.getMessage());
+        Sentry.captureException(e);
+        if (httpPostSpan != null) {
+          httpPostSpan.finish();
+        }
       }
     }
     webhooksSpan.finish();
