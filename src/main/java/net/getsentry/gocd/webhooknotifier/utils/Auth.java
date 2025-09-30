@@ -1,22 +1,24 @@
 package net.getsentry.gocd.webhooknotifier.utils;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-
 import net.getsentry.gocd.webhooknotifier.URLWithAuth;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 
 public class Auth {
     protected static final String SIGNATURE_HEADER = "x-gocd-signature";
     protected static final String GCP_AUTH_METADATA_URL = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=";
+
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(5))
+        .build();
 
     protected static String createSignature(String payload, String secret) throws NoSuchAlgorithmException {
         Mac sha256Mac = Mac.getInstance("HmacSHA256");
@@ -34,26 +36,25 @@ public class Auth {
         return result.toString();
     }
 
-    protected static String getAuthToken(URLWithAuth urlWithAuth, HttpClient client) {
+    protected static String getAuthToken(URLWithAuth urlWithAuth) {
         String audience = urlWithAuth.getAudience();
         if (audience == null) {
             return null;
         }
         String authUrl = GCP_AUTH_METADATA_URL + audience;
         try {
-            HttpGet get = new HttpGet(authUrl);
-            get.setHeader("Metadata-Flavor", "Google");
-            HttpResponse response = client.execute(get);
-            HttpEntity entity = response.getEntity();
-            return EntityUtils.toString(entity, "UTF-8");
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(authUrl))
+                .timeout(Duration.ofSeconds(5))
+                .header("Metadata-Flavor", "Google")
+                .GET()
+                .build();
+
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
         } catch (Exception e) {
             System.out.printf("failed to get auth token from %s: %s\n", authUrl, e.getMessage());
             return null;
         }
-    }
-
-    protected static String getAuthToken(URLWithAuth urlWithAuth) {
-        HttpClient httpClient = HttpClientBuilder.create().build();
-        return getAuthToken(urlWithAuth, httpClient);
     }
 }
