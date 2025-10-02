@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'java'
+plugins {
+  id 'java'
+}
 
 group = 'com.example.notification.template'
 version = '0.1-SNAPSHOT'
